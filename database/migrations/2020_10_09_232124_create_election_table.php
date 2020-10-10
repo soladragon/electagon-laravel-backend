@@ -13,8 +13,11 @@ class CreateElectionTable extends Migration
      */
     public function up()
     {
+        //http://lda.data.parliament.uk/resources/1167964.json
         Schema::create('election', function (Blueprint $table) {
             $table->id();
+            $table->string('election');
+            $table->date('date');
             $table->timestamps();
         });
     }
