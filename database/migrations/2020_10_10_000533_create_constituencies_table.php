@@ -17,10 +17,10 @@ class CreateConstituenciesTable extends Migration
 
         Schema::create('constituencies', function (Blueprint $table) {
             $table->id();
-            $table->interger('election_id')->unsigned();
+            $table->integer('election_id');
             $table->string('constituency');
-            $table->interger('electorate');
-            $table->interger('majority');
+            $table->integer('electorate');
+            $table->integer('majority');
             $table->string('result');
             $table->string('turnout');
             $table->timestamps();

@@ -20,13 +20,14 @@ class CreateCandidatesTable extends Migration
 
         Schema::create('candidates', function (Blueprint $table) {
             $table->id();
-            $table->interger('constituency_id')->unsigned();
+            $table->integer('constituency_id')->unsigned();
             $table->string('full_name');
             $table->string('votes');
             $table->string('party');
-            $table->interger('position');
+            $table->integer('position');
             $table->string('result');
             $table->string('vote_change_percentage');
+            $table->decimal('amount', 8, 2);
             $table->timestamps();
         });
     }
