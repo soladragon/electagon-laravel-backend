@@ -1,0 +1,48 @@
+
+Install the project dependencies from composer
+composer install
+
+Install NPM dependencies (optional)
+npm install
+
+Create a copy of your .env file
+cp .env.example .env
+
+Generate your encryption key
+php artisan key:generate
+
+Create an empty database for your project
+Configure your .env file to allow a connection to the database
+
+
+Otherwise try these commands that can help:
+
+Set the right permissions on all directories and files in your project by simply running
+
+chmod 755 -R nameofyourproject/
+chmod -R o+w nameofyourproject/storage
+Clean up your project
+
+php artisan cache:clear
+php artisan view:clear
+php artisan config:clear
+Sometimes you have to add to your /public/ or /index.php/ url
+
+This isn't over, what if you have a database?
+
+Well, let's get on with it.
+
+
+
+Migrations in Laravel allow you to have all your DB architecture in your code and with a simple command line you recreate all your tables.
+
+php artisan migrate
+This command creates the structure of your database but does not fill any tables.
+
+If the repository has a seed file, this is the time to run it, in order to fill your database with startup or dummy data.
+
+php artisan db:seed
+PRO TIP: You can combine the 2 previous commands into one command which is this one:
+
+php artisan migrate:fresh --seed
+Migrations are super handy, but if you don't have one you simply import the sql file from your old database with your favorite database tools. This will create all your tables with your contents.

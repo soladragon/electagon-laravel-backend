@@ -13,7 +13,11 @@ class CreateElectionTable extends Migration
      */
     public function up()
     {
-        //http://lda.data.parliament.uk/resources/1167964.json
+
+        //http://eldaddp.azurewebsites.net/electionresults.json?electionId=1167964
+        //http://lda.data.parliament.uk/electionresults.json?electionId=1167964
+        // http://lda.data.parliament.uk/electionresults.xml?_pageSize=650&electionId=1167964&_page=0
+        
         Schema::create('election', function (Blueprint $table) {
             $table->id();
             $table->string('election');

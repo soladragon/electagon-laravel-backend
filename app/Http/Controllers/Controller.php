@@ -40,7 +40,18 @@ class Controller extends BaseController
     
                 $decode_response = json_decode($encode_response, TRUE);
                 // dd($decode_response["@attributes"]);
-                return $decode_response;
+                $electionName = $decode_response["primaryTopic"]["label"];
+                $data = $decode_response["primaryTopic"]["@attributes"]["href"];
+
+                //get the election number from the link and create a new link for constituencies
+                $electionResourceNumber = substr($data, strpos($data, "resources/") + 10); 
+
+                $constituenciesLink = "http://lda.data.parliament.uk/electionresults.xml?_pageSize=650&electionId=" . $electionResourceNumber . "&_page=0";
+
+
+                dd($constituenciesLink);
+
+                return $decode_response["primaryTopic"];
     
             default: // Response json
                 $encode_response = json_encode($response);   
