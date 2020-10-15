@@ -90,7 +90,7 @@ class Controller extends BaseController
                     foreach ($decode_response["items"]["item"] as $constituency){
 
                         $constituencyName = $constituency["constituency"]["label"];
-                        $constituencyCandidatesLink["constituency"]["@attributes"]["href"];
+                        $constituencyCandidatesLink = $constituency["constituency"]["@attributes"]["href"];
 
                         dd($constituency);
 
