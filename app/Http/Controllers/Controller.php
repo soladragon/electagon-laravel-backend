@@ -73,33 +73,58 @@ class Controller extends BaseController
                     $encode_response = json_encode(simplexml_load_string($response));   
         
                     $decode_response = json_decode($encode_response, TRUE);
-                    // dd($decode_response["@attributes"]);
-                    // $electionName = $decode_response;
-                    // $data = $decode_response["primaryTopic"]["@attributes"]["href"];
-    
-                    //get the election number from the link and create a new link for constituencies
-                    // $electionResourceNumber = substr($data, strpos($data, "resources/") + 10); 
-    
-                    // $constituenciesLink = "http://lda.data.parliament.uk/electionresults.xml?_pageSize=650&electionId=" . $electionResourceNumber . "&_page=0";
-    
-    
-                    // dd($decode_response);
-    
-                    // return $decode_response["items"]["item"];
 
                     foreach ($decode_response["items"]["item"] as $constituency){
 
                         $constituencyName = $constituency["constituency"]["label"];
-                        $constituencyCandidatesLink = $constituency["constituency"]["@attributes"]["href"];
+                        $constituencyCandidatesLink = $constituency["@attributes"]["href"];
                         $constituencyElectorate = $constituency["electorate"];
                         $constituencyMajority = $constituency["majority"];
                         $constituencyResult = $constituency["resultOfElection"];
                         $constituencyTurnout = $constituency["turnout"];
 
+                        // dd($constituency);
+
+                        $constituencyResourceNumber = substr($constituencyCandidatesLink, strpos($constituencyCandidatesLink, "resources/") + 10); 
+
+                        $candiatesLink = "http://lda.data.parliament.uk/resources/" . $constituencyResourceNumber . ".xml";
+
+                       
 
 
+                           $response = $client->get($candiatesLink, $param_data);
+                           $response = $response->getBody()->getContents();
+                   
+                           switch ($provider_type) {
+                               case 'application/xml':
+                                   $encode_response = json_encode(simplexml_load_string($response));   
+                       
+                                   $decode_response = json_decode($encode_response, TRUE);
 
-                        dd($constituency);
+                                //    dd($decode_response["primaryTopic"]["candidate"]["item"]);
+               
+                                   foreach ($decode_response["primaryTopic"]["candidate"]["item"] as $candidate){
+
+                                    $canidateLink = $candidate["@attributes"]["href"];
+               
+                                    //    $constituencyName = $constituency["constituency"]["label"];
+                                    //    $constituencyCandidatesLink = $constituency["constituency"]["@attributes"]["href"];
+                                    //    $constituencyElectorate = $constituency["electorate"];
+                                    //    $constituencyMajority = $constituency["majority"];
+                                    //    $constituencyResult = $constituency["resultOfElection"];
+                                    //    $constituencyTurnout = $constituency["turnout"];
+                                    $candidateResourceNumber = substr($canidateLink, strpos($canidateLink, "candidates/") + 11); 
+                                    $canddidateLink = "http://lda.data.parliament.uk/resources/" . $constituencyResourceNumber . "/" . "candidates/" . $candidateResourceNumber . ".xml";
+                                       dd($canddidateLink);
+               
+                                   }
+                       
+                               default: // Response json
+                                   $encode_response = json_encode($response);   
+                       
+                                   $decode_response = json_decode($encode_response, TRUE);
+                                   return json_decode($decode_response, TRUE);   
+                               }
 
                     }
         
@@ -109,6 +134,12 @@ class Controller extends BaseController
                 //     $decode_response = json_decode($encode_response, TRUE);
                 //     return json_decode($decode_response, TRUE);   
                 }
+
+
+
+
+
+
         
         return $response;
         // return view('products/show',compact('response'));
