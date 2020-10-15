@@ -91,6 +91,13 @@ class Controller extends BaseController
 
                         $constituencyName = $constituency["constituency"]["label"];
                         $constituencyCandidatesLink = $constituency["constituency"]["@attributes"]["href"];
+                        $constituencyElectorate = $constituency["electorate"];
+                        $constituencyMajority = $constituency["majority"];
+                        $constituencyResult = $constituency["resultOfElection"];
+                        $constituencyTurnout = $constituency["turnout"];
+
+
+
 
                         dd($constituency);
 
