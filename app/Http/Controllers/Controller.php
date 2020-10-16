@@ -11,47 +11,44 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Message\Request;
 use GuzzleHttp\Message\Response;
 use GuzzleHttp\Exception\GuzzleException;
+use App\Models\Election;
 
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-    public function importElection()
+    public function importElection($electionID = 1167964, $provider_type = 'application/xml')
     {
-
-        $electionID = 1;
-
-        $provider_type = 'application/xml';
 
         $param_data = [
             'headers' => [
                'Accept' => $provider_type,
-               'ACCEPT' => 'application/json'
+            //    'ACCEPT' => 'application/json'
             ]
             ];
 
         $client = new Client();
-        $response = $client->get('http://eldaddp.azurewebsites.net/resources/1167964.xml', $param_data);
+        $response = $client->get('http://eldaddp.azurewebsites.net/resources/' . $electionID . '.xml', $param_data);
         $response = $response->getBody()->getContents();
 
         switch ($provider_type) {
             case 'application/xml':
                 $encode_response = json_encode(simplexml_load_string($response));   
-    
                 $decode_response = json_decode($encode_response, TRUE);
-                // dd($decode_response["@attributes"]);
+
                 $electionName = $decode_response["primaryTopic"]["label"];
-                $data = $decode_response["primaryTopic"]["@attributes"]["href"];
+                $electionDate = $decode_response["primaryTopic"]["date"];
+                $electionLink = $decode_response["primaryTopic"]["@attributes"]["href"];
+
+                $inputs = ['election' => $electionName, 'date' => $electionDate];
+              
+                Election::create($inputs);
+                dd($decode_response);
 
                 //get the election number from the link and create a new link for constituencies
-                $electionResourceNumber = substr($data, strpos($data, "resources/") + 10); 
+                $electionResourceNumber = substr($electionLink, strpos($electionLink, "resources/") + 10); 
 
                 $constituenciesLink = "http://lda.data.parliament.uk/electionresults.xml?_pageSize=650&electionId=" . $electionResourceNumber . "&_page=0";
-
-
-                // dd($constituenciesLink);
-
-                // return $decode_response["primaryTopic"];
     
             // default: // Response json
             //     $encode_response = json_encode($response);   
@@ -60,18 +57,12 @@ class Controller extends BaseController
             //     return json_decode($decode_response, TRUE);   
             }
 
-
-            //constituencies
-
-            // dd($constituenciesLink);
-
             $response = $client->get($constituenciesLink, $param_data);
             $response = $response->getBody()->getContents();
     
             switch ($provider_type) {
                 case 'application/xml':
                     $encode_response = json_encode(simplexml_load_string($response));   
-        
                     $decode_response = json_decode($encode_response, TRUE);
 
                     foreach ($decode_response["items"]["item"] as $constituency){
@@ -83,14 +74,10 @@ class Controller extends BaseController
                         $constituencyResult = $constituency["resultOfElection"];
                         $constituencyTurnout = $constituency["turnout"];
 
-                        // dd($constituency);
+                        dd($constituency);
 
                         $constituencyResourceNumber = substr($constituencyCandidatesLink, strpos($constituencyCandidatesLink, "resources/") + 10); 
-
                         $candiatesLink = "http://lda.data.parliament.uk/resources/" . $constituencyResourceNumber . ".xml";
-
-                       
-
 
                            $response = $client->get($candiatesLink, $param_data);
                            $response = $response->getBody()->getContents();
@@ -106,15 +93,9 @@ class Controller extends BaseController
                                    foreach ($decode_response["primaryTopic"]["candidate"]["item"] as $candidate){
 
                                     $candidateLink = $candidate["@attributes"]["href"];
-               
-                                    //    $constituencyName = $constituency["constituency"]["label"];
-                                    //    $constituencyCandidatesLink = $constituency["constituency"]["@attributes"]["href"];
-                                    //    $constituencyElectorate = $constituency["electorate"];
-                                    //    $constituencyMajority = $constituency["majority"];
-                                    //    $constituencyResult = $constituency["resultOfElection"];
-                                    //    $constituencyTurnout = $constituency["turnout"];
                                     $candidateResourceNumber = substr($candidateLink, strpos($candidateLink, "candidates/") + 11); 
                                     // dd($candidateResourceNumber);
+
                                     $candidateLink = "http://lda.data.parliament.uk/resources/" . $constituencyResourceNumber . "/" . "candidates/" . $candidateResourceNumber . ".xml";
 
                                        $response = $client->get($candidateLink, $param_data);
@@ -142,15 +123,6 @@ class Controller extends BaseController
                                                    'vote_change_percentage' => $candidateVoteChangePercentage
                                                 ];
                                                 // Client::create(inputs)
-
-                                                $table->integer('constituency_id')->unsigned();
-                                                $table->string('full_name');
-                                                $table->string('votes');
-                                                $table->string('party');
-                                                $table->integer('position');
-                                                $table->string('result');
-                                                $table->string('vote_change_percentage');
-                                                $table->decimal('amount', 8, 2);
                                                
                                    
                                         //    default: // Response json
@@ -159,9 +131,6 @@ class Controller extends BaseController
                                         //        $decode_response = json_decode($encode_response, TRUE);
                                         //        return json_decode($decode_response, TRUE);   
                                            }
-
-
-               
                                    }
                        
                             //    default: // Response json
@@ -180,13 +149,104 @@ class Controller extends BaseController
                 //     return json_decode($decode_response, TRUE);   
                 }
 
-
-
-
-
-
-        
         return $response;
         // return view('products/show',compact('response'));
+    }
+
+    public function getElection($electionID = 1167964, $provider_type = 'application/xml'){
+        
+                $param_data = [
+                    'headers' => [
+                       'ACCEPT' => $provider_type
+                    ]
+                    ];
+        
+                $client = new Client();
+                $response = $client->get('http://eldaddp.azurewebsites.net/resources/' . $electionID . '.xml', $param_data);
+                $response = $response->getBody()->getContents();
+        
+                switch ($provider_type) {
+                    case 'application/xml':
+                        $encode_response = json_encode(simplexml_load_string($response));   
+            
+                        $decode_response = json_decode($encode_response, TRUE);
+                        // dd($decode_response["@attributes"]);
+                        $electionName = $decode_response["primaryTopic"]["label"];
+                        $data = $decode_response["primaryTopic"]["@attributes"]["href"];
+        
+                        //get the election number from the link and create a new link for constituencies
+                        $electionResourceNumber = substr($data, strpos($data, "resources/") + 10); 
+        
+                        $constituenciesLink = "http://lda.data.parliament.uk/electionresults.xml?_pageSize=650&electionId=" . $electionResourceNumber . "&_page=0";
+            
+                    default: // Response json
+                        $encode_response = json_encode($response);   
+            
+                        $decode_response = json_decode($encode_response, TRUE);
+                        return json_decode($decode_response, TRUE);   
+                    }
+                
+                return $response;
+    }
+
+    public function apiGet($electionID = 1167964, $provider_type = 'application/xml'){
+        {
+    
+            $param_data = [
+                'headers' => [
+                   'ACCEPT' => $provider_type,
+                //    'ACCEPT' => 'application/json'
+                ]
+                ];
+    
+            $client = new Client();
+            $response = $client->get('http://eldaddp.azurewebsites.net/resources/' . $electionID . '.xml', $param_data);
+            $response = $response->getBody()->getContents();
+    
+            switch ($provider_type) {
+                case 'application/xml':
+                    $encode_response = json_encode(simplexml_load_string($response));   
+        
+                    $decode_response = json_decode($encode_response, TRUE);
+                    // dd($decode_response["@attributes"]);
+                    $electionName = $decode_response["primaryTopic"]["label"];
+                    $data = $decode_response["primaryTopic"]["@attributes"]["href"];
+    
+                    //get the election number from the link and create a new link for constituencies
+                    $electionResourceNumber = substr($data, strpos($data, "resources/") + 10); 
+    
+                    $constituenciesLink = "http://lda.data.parliament.uk/electionresults.xml?_pageSize=650&electionId=" . $electionResourceNumber . "&_page=0";
+        
+                default: // Response json
+                    $encode_response = json_encode($response);   
+        
+                    $decode_response = json_decode($encode_response, TRUE);
+                    return json_decode($decode_response, TRUE);   
+                }
+    
+                $response = $client->get($constituenciesLink, $param_data);
+                $response = $response->getBody()->getContents();
+        
+                switch ($provider_type) {
+                    case 'application/xml':
+                        $encode_response = json_encode(simplexml_load_string($response));   
+                        $decode_response = json_decode($encode_response, TRUE);
+
+                    default: // Response json
+                        $encode_response = json_encode($response);   
+            
+                        $decode_response = json_decode($encode_response, TRUE);
+                        return json_decode($decode_response, TRUE);   
+                    }
+    
+    
+    
+    
+    
+    
+            
+            return $response;
+            // return view('products/show',compact('response'));
+        }
     }
 }

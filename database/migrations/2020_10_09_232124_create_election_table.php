@@ -18,7 +18,7 @@ class CreateElectionTable extends Migration
         //http://lda.data.parliament.uk/electionresults.json?electionId=1167964
         // http://lda.data.parliament.uk/electionresults.xml?_pageSize=650&electionId=1167964&_page=0
         
-        Schema::create('election', function (Blueprint $table) {
+        Schema::create('elections', function (Blueprint $table) {
             $table->id();
             $table->string('election');
             $table->date('date');
@@ -33,6 +33,6 @@ class CreateElectionTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('election');
+        Schema::dropIfExists('elections');
     }
 }
