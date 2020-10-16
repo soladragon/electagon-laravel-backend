@@ -19,7 +19,9 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-    public function importElection($electionID = 1167964, $provider_type = 'application/xml')
+    //2010 = 382037
+
+    public function importElection($electionID = 382037, $provider_type = 'application/xml')
     {
 
         $param_data = [
@@ -133,7 +135,12 @@ class Controller extends BaseController
                                                $candidateFullName = $decode_response["primaryTopic"]["fullName"];
                                                $candidateNumberOfVotes = $decode_response["primaryTopic"]["numberOfVotes"];
                                                $candidateParty = $decode_response["primaryTopic"]["party"];
-                                               $candidateVoteChangePercentage = $decode_response["primaryTopic"]["voteChangePercentage"];
+
+                                               if( isset($decode_response["primaryTopic"]["voteChangePercentage"])){
+                                                $candidateVoteChangePercentage = $decode_response["primaryTopic"]["voteChangePercentage"];
+                                            } else {
+                                                $candidateVoteChangePercentage = 0;
+                                            }
                                                $candidateOrder = $decode_response["primaryTopic"]["order"];
 
                                                $inputs = [
@@ -175,69 +182,4 @@ class Controller extends BaseController
         // return view('products/show',compact('response'));
     }
 
-    public function getElection(){
-        
-
-    }
-
-    public function apiGet($electionID = 1167964, $provider_type = 'application/xml'){
-        {
-    
-            $param_data = [
-                'headers' => [
-                   'ACCEPT' => $provider_type,
-                //    'ACCEPT' => 'application/json'
-                ]
-                ];
-    
-            $client = new Client();
-            $response = $client->get('http://eldaddp.azurewebsites.net/resources/' . $electionID . '.xml', $param_data);
-            $response = $response->getBody()->getContents();
-    
-            switch ($provider_type) {
-                case 'application/xml':
-                    $encode_response = json_encode(simplexml_load_string($response));   
-        
-                    $decode_response = json_decode($encode_response, TRUE);
-                    // dd($decode_response["@attributes"]);
-                    $electionName = $decode_response["primaryTopic"]["label"];
-                    $data = $decode_response["primaryTopic"]["@attributes"]["href"];
-    
-                    //get the election number from the link and create a new link for constituencies
-                    $electionResourceNumber = substr($data, strpos($data, "resources/") + 10); 
-    
-                    $constituenciesLink = "http://lda.data.parliament.uk/electionresults.xml?_pageSize=650&electionId=" . $electionResourceNumber . "&_page=0";
-        
-                default: // Response json
-                    $encode_response = json_encode($response);   
-        
-                    $decode_response = json_decode($encode_response, TRUE);
-                    return json_decode($decode_response, TRUE);   
-                }
-    
-                $response = $client->get($constituenciesLink, $param_data);
-                $response = $response->getBody()->getContents();
-        
-                switch ($provider_type) {
-                    case 'application/xml':
-                        $encode_response = json_encode(simplexml_load_string($response));   
-                        $decode_response = json_decode($encode_response, TRUE);
-
-                    default: // Response json
-                        $encode_response = json_encode($response);   
-            
-                        $decode_response = json_decode($encode_response, TRUE);
-                        return json_decode($decode_response, TRUE);   
-                    }
-    
-    
-    
-    
-    
-    
-            
-            return $response;
-            // return view('products/show',compact('response'));
-        }
-    }
 }
