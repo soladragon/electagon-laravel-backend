@@ -14,7 +14,7 @@ class constituency extends Model
         return $this->belongsTo('App\Models\election');
     }
 
-    public function canidadates()
+    public function candidates()
     {
         return $this->hasMany('App\Models\candidate');
     }

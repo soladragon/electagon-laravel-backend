@@ -11,6 +11,6 @@ class election extends Model
 
     public function constituencies()
     {
-        return $this->hasMany('App\Models\constituency');
+        return $this->hasMany('App\Models\constituency')->with('candidates');
     }
 }
