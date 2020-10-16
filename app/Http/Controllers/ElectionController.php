@@ -15,6 +15,8 @@ class ElectionController extends Controller
     public function index()
     {
         //
+        return election::with('constituencies')->get();
+       
     }
 
     /**

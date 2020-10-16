@@ -8,5 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 class constituency extends Model
 {
     use HasFactory;
+
+    public function election()
+    {
+        return $this->belongsTo('App\Models\election');
+    }
+
+    public function canidadates()
+    {
+        return $this->hasMany('App\Models\candidate');
+    }
     
 }

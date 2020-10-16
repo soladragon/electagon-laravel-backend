@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\ElectionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,6 +15,8 @@ use App\Http\Controllers\Controller;
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::get('e', [ElectionController::class, 'index']);
 
 Route::get('test', [Controller::class, 'importElection']);
 

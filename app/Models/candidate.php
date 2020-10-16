@@ -16,4 +16,9 @@ class candidate extends Model
         'position',
         'vote_change_percentage',
      ];
+
+     public function constituency()
+     {
+         return $this->belongsTo('App\Models\constituency');
+     }
 }
