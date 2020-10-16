@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Election;
+use App\Models\election;
 use Illuminate\Http\Request;
 
-class ElectionsController extends Controller
+class ElectionController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -41,10 +41,10 @@ class ElectionsController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Election  $election
+     * @param  \App\Models\election  $election
      * @return \Illuminate\Http\Response
      */
-    public function show(Election $election)
+    public function show(election $election)
     {
         //
     }
@@ -52,10 +52,10 @@ class ElectionsController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Election  $election
+     * @param  \App\Models\election  $election
      * @return \Illuminate\Http\Response
      */
-    public function edit(Election $election)
+    public function edit(election $election)
     {
         //
     }
@@ -64,10 +64,10 @@ class ElectionsController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Election  $election
+     * @param  \App\Models\election  $election
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Election $election)
+    public function update(Request $request, election $election)
     {
         //
     }
@@ -75,10 +75,10 @@ class ElectionsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Election  $election
+     * @param  \App\Models\election  $election
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Election $election)
+    public function destroy(election $election)
     {
         //
     }

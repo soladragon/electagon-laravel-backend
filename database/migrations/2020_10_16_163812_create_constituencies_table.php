@@ -25,6 +25,12 @@ class CreateConstituenciesTable extends Migration
             $table->string('turnout');
             $table->timestamps();
         });
+
+
+        // Schema::create('constituencies', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->timestamps();
+        // });
     }
 
     /**

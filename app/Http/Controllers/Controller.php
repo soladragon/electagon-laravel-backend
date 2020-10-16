@@ -11,7 +11,9 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Message\Request;
 use GuzzleHttp\Message\Response;
 use GuzzleHttp\Exception\GuzzleException;
-use App\Models\Election;
+use App\Models\election;
+use App\Models\constituency;
+use App\Models\candidate;
 
 class Controller extends BaseController
 {
@@ -40,10 +42,17 @@ class Controller extends BaseController
                 $electionDate = $decode_response["primaryTopic"]["date"];
                 $electionLink = $decode_response["primaryTopic"]["@attributes"]["href"];
 
-                $inputs = ['election' => $electionName, 'date' => $electionDate];
+                // $inputs = ['election' => $electionName, 'date' => $electionDate];
               
-                Election::create($inputs);
-                dd($decode_response);
+                // Election::create($inputs);
+                // dd($decode_response);
+
+                $electionClass = new Election;
+                $electionClass->election = $electionName;
+                $electionClass->date = $electionDate;
+            
+                $electionClass->save();
+                $electionDatabaseID = $electionClass->id;
 
                 //get the election number from the link and create a new link for constituencies
                 $electionResourceNumber = substr($electionLink, strpos($electionLink, "resources/") + 10); 
@@ -74,7 +83,18 @@ class Controller extends BaseController
                         $constituencyResult = $constituency["resultOfElection"];
                         $constituencyTurnout = $constituency["turnout"];
 
-                        dd($constituency);
+                        $constituencyClass = new Constituency;
+                        $constituencyClass->election_id = $electionDatabaseID;
+                        $constituencyClass->constituency = $constituencyName;
+                        $constituencyClass->electorate = $constituencyElectorate;
+                        $constituencyClass->majority = $constituencyMajority;
+                        $constituencyClass->result = $constituencyResult;
+                        $constituencyClass->turnout = $constituencyTurnout;
+
+                        $constituencyClass->save();
+                        $constituencyDatabaseID = $constituencyClass->id;
+
+                        // dd($constituency);
 
                         $constituencyResourceNumber = substr($constituencyCandidatesLink, strpos($constituencyCandidatesLink, "resources/") + 10); 
                         $candiatesLink = "http://lda.data.parliament.uk/resources/" . $constituencyResourceNumber . ".xml";
@@ -98,6 +118,8 @@ class Controller extends BaseController
 
                                     $candidateLink = "http://lda.data.parliament.uk/resources/" . $constituencyResourceNumber . "/" . "candidates/" . $candidateResourceNumber . ".xml";
 
+                                    // dd($candidateLink);
+
                                        $response = $client->get($candidateLink, $param_data);
                                        $response = $response->getBody()->getContents();
                                
@@ -106,7 +128,7 @@ class Controller extends BaseController
                                                $encode_response = json_encode(simplexml_load_string($response));   
                                                $decode_response = json_decode($encode_response, TRUE);
             
-                                               dd($decode_response["primaryTopic"]);
+                                            //    dd($decode_response["primaryTopic"]);
 
                                                $candidateFullName = $decode_response["primaryTopic"]["fullName"];
                                                $candidateNumberOfVotes = $decode_response["primaryTopic"]["numberOfVotes"];
@@ -114,15 +136,15 @@ class Controller extends BaseController
                                                $candidateVoteChangePercentage = $decode_response["primaryTopic"]["voteChangePercentage"];
                                                $candidateOrder = $decode_response["primaryTopic"]["order"];
 
-                                               $input = [
-                                                   'constituency_id' => 1, 
+                                               $inputs = [
+                                                   'constituency_id' => $constituencyDatabaseID, 
                                                    'full_name' => $candidateFullName, 
                                                    'votes' => $candidateNumberOfVotes, 
                                                    'party' => $candidateParty, 
                                                    'position' => $candidateOrder, 
-                                                   'vote_change_percentage' => $candidateVoteChangePercentage
+                                                   'vote_change_percentage' => is_array($candidateVoteChangePercentage) === 1 ? $candidateVoteChangePercentage : 0,
                                                 ];
-                                                // Client::create(inputs)
+                                                Candidate::create($inputs);
                                                
                                    
                                         //    default: // Response json
