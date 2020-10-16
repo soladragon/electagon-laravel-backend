@@ -105,7 +105,7 @@ class Controller extends BaseController
                
                                    foreach ($decode_response["primaryTopic"]["candidate"]["item"] as $candidate){
 
-                                    $canidateLink = $candidate["@attributes"]["href"];
+                                    $candidateLink = $candidate["@attributes"]["href"];
                
                                     //    $constituencyName = $constituency["constituency"]["label"];
                                     //    $constituencyCandidatesLink = $constituency["constituency"]["@attributes"]["href"];
@@ -113,17 +113,43 @@ class Controller extends BaseController
                                     //    $constituencyMajority = $constituency["majority"];
                                     //    $constituencyResult = $constituency["resultOfElection"];
                                     //    $constituencyTurnout = $constituency["turnout"];
-                                    $candidateResourceNumber = substr($canidateLink, strpos($canidateLink, "candidates/") + 11); 
-                                    $canddidateLink = "http://lda.data.parliament.uk/resources/" . $constituencyResourceNumber . "/" . "candidates/" . $candidateResourceNumber . ".xml";
-                                       dd($canddidateLink);
+                                    $candidateResourceNumber = substr($candidateLink, strpos($candidateLink, "candidates/") + 11); 
+                                    // dd($candidateResourceNumber);
+                                    $candidateLink = "http://lda.data.parliament.uk/resources/" . $constituencyResourceNumber . "/" . "candidates/" . $candidateResourceNumber . ".xml";
+
+                                       $response = $client->get($candidateLink, $param_data);
+                                       $response = $response->getBody()->getContents();
+                               
+                                       switch ($provider_type) {
+                                           case 'application/xml':
+                                               $encode_response = json_encode(simplexml_load_string($response));   
+                                               $decode_response = json_decode($encode_response, TRUE);
+            
+                                               dd($decode_response["primaryTopic"]);
+
+                                               $candidateFullName = $decode_response["primaryTopic"]["fullName"];
+                                               $candidateNumberOfVotes = $decode_response["primaryTopic"]["numberOfVotes"];
+                                               $candidateParty = $decode_response["primaryTopic"]["party"];
+                                               $candidateVoteChangePercentage = $decode_response["primaryTopic"]["voteChangePercentage"];
+                                               $candidateOrder = $decode_response["primaryTopic"]["order"];
+                                               
+                                   
+                                        //    default: // Response json
+                                        //        $encode_response = json_encode($response);   
+                                   
+                                        //        $decode_response = json_decode($encode_response, TRUE);
+                                        //        return json_decode($decode_response, TRUE);   
+                                           }
+
+
                
                                    }
                        
-                               default: // Response json
-                                   $encode_response = json_encode($response);   
+                            //    default: // Response json
+                            //        $encode_response = json_encode($response);   
                        
-                                   $decode_response = json_decode($encode_response, TRUE);
-                                   return json_decode($decode_response, TRUE);   
+                            //        $decode_response = json_decode($encode_response, TRUE);
+                            //        return json_decode($decode_response, TRUE);   
                                }
 
                     }
