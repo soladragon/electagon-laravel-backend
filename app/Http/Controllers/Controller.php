@@ -132,6 +132,25 @@ class Controller extends BaseController
                                                $candidateParty = $decode_response["primaryTopic"]["party"];
                                                $candidateVoteChangePercentage = $decode_response["primaryTopic"]["voteChangePercentage"];
                                                $candidateOrder = $decode_response["primaryTopic"]["order"];
+
+                                               $input = [
+                                                   'constituency_id' => 1, 
+                                                   'full_name' => $candidateFullName, 
+                                                   'votes' => $candidateNumberOfVotes, 
+                                                   'party' => $candidateParty, 
+                                                   'position' => $candidateOrder, 
+                                                   'vote_change_percentage' => $candidateVoteChangePercentage
+                                                ];
+                                                // Client::create(inputs)
+
+                                                $table->integer('constituency_id')->unsigned();
+                                                $table->string('full_name');
+                                                $table->string('votes');
+                                                $table->string('party');
+                                                $table->integer('position');
+                                                $table->string('result');
+                                                $table->string('vote_change_percentage');
+                                                $table->decimal('amount', 8, 2);
                                                
                                    
                                         //    default: // Response json

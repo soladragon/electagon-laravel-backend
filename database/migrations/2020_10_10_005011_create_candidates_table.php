@@ -26,8 +26,7 @@ class CreateCandidatesTable extends Migration
             $table->string('party');
             $table->integer('position');
             $table->string('result');
-            $table->string('vote_change_percentage');
-            $table->decimal('amount', 8, 2);
+            $table->decimal('vote_change_percentage', 8, 2);
             $table->timestamps();
         });
     }
