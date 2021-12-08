@@ -19,9 +19,17 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
+    // FIND ELECTION IDS HERE http://lda.data.parliament.uk/electionresults.xml?_pageSize=650&_page=3
+
     //2010 = 382037
 
-    public function importElection($electionID = 382037, $provider_type = 'application/xml')
+    //2015 = 383666
+
+    // 2017 = 730039
+
+    // 2019 = 1167964   
+
+    public function importElection($electionID = 383666, $provider_type = 'application/xml')
     {
 
         $param_data = [
@@ -39,6 +47,8 @@ class Controller extends BaseController
             case 'application/xml':
                 $encode_response = json_encode(simplexml_load_string($response));   
                 $decode_response = json_decode($encode_response, TRUE);
+
+                dd($decode_response);
 
                 $electionName = $decode_response["primaryTopic"]["label"];
                 $electionDate = $decode_response["primaryTopic"]["date"];
